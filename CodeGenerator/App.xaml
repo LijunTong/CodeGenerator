@@ -1,0 +1,62 @@
+﻿<prism:PrismApplication x:Class="CodeGenerator.App"
+                        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                        xmlns:local="clr-namespace:CodeGenerator"
+                        xmlns:prism="http://prismlibrary.com/"
+                        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                        xmlns:converters="clr-namespace:CodeGenerator.Core.Converters;assembly=CodeGenerator.Core">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <materialDesign:BundledTheme BaseTheme="Light"
+                                             PrimaryColor="LightBlue"
+                                             SecondaryColor="Lime" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
+
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="MenuListBoxItemStyle"
+                   TargetType="ListBoxItem">
+                <!-- 鼠标悬停效果 -->
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBoxItem">
+                            <Border x:Name="Border"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="0"
+                                    Padding="5"
+                                    Background="{TemplateBinding Background}">
+                                <ContentPresenter />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver"
+                                         Value="True">
+                                    <Setter TargetName="Border"
+                                            Property="Background"
+                                            Value="{DynamicResource MaterialDesignSelection}" />
+                                </Trigger>
+                                <Trigger Property="IsSelected"
+                                         Value="True">
+                                    <Setter TargetName="Border"
+                                            Property="Background"
+                                            Value="{DynamicResource MaterialDesignSelection}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="HorizontalContentAlignment"
+                        Value="Stretch" />
+                <Setter Property="VerticalContentAlignment"
+                        Value="Center" />
+                <Setter Property="Margin"
+                        Value="2" />
+            </Style>
+            <converters:TupleConverter  x:Key="TupleConverter" />
+            <converters:WidthAndHeightToRectConverter  x:Key="WidthAndHeightToRectConverter" />
+            <converters:HighlightingDefinitionConverter  x:Key="HighlightingDefinitionConverter" />
+            <converters:ReverseBoolToVisibilityConverter  x:Key="ReverseBoolToVisibilityConverter" />
+
+        </ResourceDictionary>
+
+    </Application.Resources>
+</prism:PrismApplication>

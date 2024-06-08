@@ -1,0 +1,263 @@
+﻿<UserControl x:Class="CodeGenerator.Modules.Code.Views.GenView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:core="clr-namespace:CodeGenerator.Core.ValidationRules;assembly=CodeGenerator.Core"
+             mc:Ignorable="d"
+             d:DesignHeight="450"
+             d:DesignWidth="800">
+    <materialDesign:TransitioningContent>
+        <materialDesign:TransitioningContent.OpeningEffects>
+            <materialDesign:TransitionEffect Kind="FadeIn" />
+            <materialDesign:TransitionEffect Kind="SlideInFromLeft" />
+        </materialDesign:TransitioningContent.OpeningEffects>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="60" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
+                <ToolBar Grid.Row="0"
+                         Style="{StaticResource MaterialDesignToolBar}">
+                    <TextBlock Text="生成"
+                               Margin="10,0"
+                               VerticalAlignment="Center"></TextBlock>
+                </ToolBar>
+                <Expander Grid.Row="1"
+                          HorizontalAlignment="Stretch"
+                          IsExpanded="True"
+                          Header="第一步：选择数据源，并连接"
+                          materialDesign:ExpanderAssist.ExpanderButtonPosition="End">
+                    <StackPanel Orientation="Horizontal"
+                                Margin="80 0 0 0">
+                        <ComboBox Width="200"
+                                  IsEnabled="{Binding IsConnected,Converter ={ StaticResource InvertBooleanConverter }}"
+                                  materialDesign:HintAssist.Hint="数据源"
+                                  SelectedItem="{Binding SelectCodeDb}"
+                                  ItemsSource="{Binding CodeDbs}"
+                                  Style="{StaticResource MaterialDesignFloatingHintComboBox}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Name}"></TextBlock>
+                                        <TextBlock Margin="10 0" Style="{StaticResource MaterialDesignLabelSmallTextBlock}" VerticalAlignment="Center" Text="{Binding Type}"></TextBlock>
+                                    </StackPanel>
+                                    
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Button Margin="10 0"
+                                Content="{Binding ConnectBtnText}"
+                                IsEnabled="{Binding ConnectEnable}"
+                                ToolTip="{Binding ConnectBtnToolTips}"
+                                materialDesign:ButtonProgressAssist.IsIndeterminate="{Binding ConnectBtnIndeterminate}"
+                                materialDesign:ButtonProgressAssist.IsIndicatorVisible="True"
+                                materialDesign:ButtonProgressAssist.Value="-1"
+                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                Command="{Binding ConnectCommand}">
+                        </Button>
+                    </StackPanel>
+                </Expander>
+                <Expander Grid.Row="2"
+                          HorizontalAlignment="Stretch"
+                          IsExpanded="False"
+                          Header="第二步：选择数据库"
+                          materialDesign:ExpanderAssist.ExpanderButtonPosition="End">
+                    <StackPanel Orientation="Horizontal"
+                                IsEnabled="{Binding IsConnected}"
+                                Margin="80 0 0 0">
+                        <ComboBox ItemsSource="{Binding Databases}"
+                                  SelectedItem="{Binding SelectDatabase}"
+                                  materialDesign:HintAssist.Hint="数据库"
+                                  IsEnabled="{Binding IsConnected}"
+                                  Width="200"
+                                  Style="{StaticResource MaterialDesignFloatingHintComboBox}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="SelectionChanged">
+                                    <i:InvokeCommandAction Command="{Binding SelectedDatabaseCommand}"></i:InvokeCommandAction>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </ComboBox>
+                    </StackPanel>
+                </Expander>
+                <Expander Grid.Row="3"
+                          HorizontalAlignment="Stretch"
+                          IsExpanded="False"
+                          Header="第三步：选择数据表，并调整表结构"
+                          materialDesign:ExpanderAssist.ExpanderButtonPosition="End">
+                    <StackPanel Orientation="Vertical"
+                                IsEnabled="{Binding IsConnected}">
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="80 0 0 0">
+                            <ComboBox ItemsSource="{Binding Tables}"
+                                      SelectedItem="{Binding SelectTable}"
+                                      Margin="16 0"
+                                      materialDesign:HintAssist.Hint="数据表"
+                                      IsEnabled="{Binding IsConnected}"
+                                      Width="auto"
+                                      MinWidth="200"
+                                      VerticalAlignment="Center"
+                                      Style="{StaticResource MaterialDesignFloatingHintComboBox}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="SelectionChanged">
+                                        <i:InvokeCommandAction Command="{Binding SelectedTableCommand}"></i:InvokeCommandAction>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </ComboBox>
+
+                            <TextBox  materialDesign:HintAssist.Hint="实体类名"
+                                      Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                      Width="auto"
+                                      MinWidth="200"
+                                      Margin="20 0"
+                                      HorizontalAlignment="Left">
+                                <TextBox.Text>
+                                    <Binding Path="EntityName"
+                                             UpdateSourceTrigger="PropertyChanged"
+                                             Mode="TwoWay">
+                                        <Binding.ValidationRules>
+                                            <core:NotEmptyValidationRule ValidatesOnTargetUpdated="True" />
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </TextBox.Text>
+                            </TextBox>
+                        </StackPanel>
+                        <DataGrid HeadersVisibility="All"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  ItemsSource="{Binding DbFields}"
+                                  Style="{StaticResource MaterialDesignDataGrid}"
+                                  Margin=" 0 20 0 0"
+                                  SelectionMode="Single">
+                            <DataGrid.Columns>
+                                <DataGridCheckBoxColumn Header="请选择"
+                                                        Binding="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                <DataGridTextColumn Header="数据库字段名"
+                                                    IsReadOnly="True"
+                                                    Binding="{Binding FieldName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                <DataGridTextColumn Header="实体属性名"
+                                                    Binding="{Binding FieldModelName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+
+                                <DataGridTextColumn Header="数据库字段类型"
+                                                    IsReadOnly="True"
+                                                    Binding="{Binding FieldDbType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                <DataGridTextColumn Header="实体属性类型"
+                                                    Binding="{Binding FieldModelType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                <DataGridTextColumn Header="字段长度"
+                                                    Binding="{Binding FieldLength,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                <DataGridComboBoxColumn Header="是否为空"
+                                                        SelectedItemBinding="{Binding IsNotNull,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                    <DataGridComboBoxColumn.ItemsSource>
+                                        <x:Array Type="{x:Type sys:Boolean}"
+                                                 xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                                            <sys:Boolean>True</sys:Boolean>
+                                            <sys:Boolean>False</sys:Boolean>
+                                        </x:Array>
+                                    </DataGridComboBoxColumn.ItemsSource>
+                                </DataGridComboBoxColumn>
+                                <DataGridComboBoxColumn Header="是否自增"
+                                                        SelectedItemBinding="{Binding IsIncrement,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                    <DataGridComboBoxColumn.ItemsSource>
+                                        <x:Array Type="{x:Type sys:Boolean}"
+                                                 xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                                            <sys:Boolean>True</sys:Boolean>
+                                            <sys:Boolean>False</sys:Boolean>
+                                        </x:Array>
+                                    </DataGridComboBoxColumn.ItemsSource>
+                                </DataGridComboBoxColumn>
+                                <DataGridComboBoxColumn Header="是否主键"
+                                                        SelectedItemBinding="{Binding IsPrimaryKey,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                    <DataGridComboBoxColumn.ItemsSource>
+                                        <x:Array Type="{x:Type sys:Boolean}"
+                                                 xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                                            <sys:Boolean>True</sys:Boolean>
+                                            <sys:Boolean>False</sys:Boolean>
+                                        </x:Array>
+                                    </DataGridComboBoxColumn.ItemsSource>
+                                </DataGridComboBoxColumn>
+                                <DataGridTextColumn Header="注释"
+                                                    Binding="{Binding FieldDes,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Expander>
+                <Expander Grid.Row="4"
+                          HorizontalAlignment="Stretch"
+                          IsExpanded="False"
+                          Header="第四步：配置模板，并生成"
+                          materialDesign:ExpanderAssist.ExpanderButtonPosition="End">
+                    <StackPanel IsEnabled="{Binding IsConnected}">
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="80 0 0 0">
+                            <ComboBox ItemsSource="{Binding Schemes}"
+                                      SelectedItem="{Binding SelectScheme}"
+                                      materialDesign:HintAssist.Hint="模板方案"
+                                      IsEnabled="{Binding IsConnected}"
+                                      Width="auto"
+                                      MinWidth="200"
+                                      VerticalAlignment="Center"
+                                      Style="{StaticResource MaterialDesignFloatingHintComboBox}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="SelectionChanged">
+                                        <i:InvokeCommandAction Command="{Binding SelectedSchemeCommand}"></i:InvokeCommandAction>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}"></TextBlock>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button Style="{StaticResource MaterialDesignIconButton}"
+                                    Command="{Binding RefreshSchemeCommand}"
+                                    VerticalAlignment="Bottom"
+                                    Content="{materialDesign:PackIcon Kind=Refresh, Size=21}">
+
+                            </Button>
+
+                            <Button Margin="20,0"
+                                    materialDesign:ButtonProgressAssist.IsIndeterminate="{Binding GenBtnIndeterminate}"
+                                    materialDesign:ButtonProgressAssist.IsIndicatorVisible="True"
+                                    materialDesign:ButtonProgressAssist.Value="-1"
+                                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                                    Content="{Binding GenBtnText}"
+                                    IsEnabled="{Binding GenBtnEnabled}"
+                                    Command="{Binding GenBtnCommand}" />
+
+                            <Button Margin="0"
+                                    Content="导出"
+                                    IsEnabled="{Binding GenBtnEnabled}"
+                                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                                    Command="{Binding ExportCommand}" />
+                        </StackPanel>
+                        <DataGrid HeadersVisibility="All"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  ItemsSource="{Binding SchemesDetials}"
+                                  IsEnabled="{Binding IsConnected}"
+                                  Style="{StaticResource MaterialDesignDataGrid}"
+                                  SelectionMode="Single">
+                            <DataGrid.Columns>
+                                <DataGridCheckBoxColumn Header="请选择"
+                                                        Binding="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                <DataGridTextColumn Header="模板名称"
+                                                    IsReadOnly="True"
+                                                    Binding="{Binding TempName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                <DataGridTextColumn Header="文件名称"
+                                                    Binding="{Binding FileName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Expander>
+            </Grid>
+        </ScrollViewer>
+    </materialDesign:TransitioningContent>
+</UserControl>

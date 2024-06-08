@@ -1,0 +1,217 @@
+﻿<Window x:Class="CodeGenerator.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:prism="http://prismlibrary.com/"
+        prism:ViewModelLocator.AutoWireViewModel="True"
+        xmlns:lib="clr-namespace:CodeGenerator.Lib;assembly=CodeGenerator.Lib"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        Title="{Binding Title}"
+        Height="600"
+        Width="1000"
+        Style="{StaticResource MaterialDesignWindow}"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        FontSize="15"
+        FontFamily="Microsoft YaHei"
+        WindowStartupLocation="CenterScreen"
+        StateChanged="Window_StateChanged">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadCommand}"></i:InvokeCommandAction>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Border BorderBrush="{DynamicResource MaterialDesignDivider}"
+            BorderThickness="2"
+            ClipToBounds="True">
+        <materialDesign:DialogHost Identifier="Root"
+                                   ClipToBounds="True"
+                                   DialogTheme="Inherit">
+            <materialDesign:DrawerHost x:Name="DrawerHost"
+                                       OpenMode="Standard"
+                                       BorderBrush="{DynamicResource MaterialDesignDivider}"
+                                       IsLeftDrawerOpen="{ Binding IsLeftDrawerOpen }">
+                <materialDesign:DrawerHost.LeftDrawerContent>
+                    <Grid Width="200"
+                          ClipToBounds="True">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="60" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="60" />
+                        </Grid.RowDefinitions>
+                        <DockPanel Grid.Row="0">
+
+                            <ToggleButton Style="{StaticResource MaterialDesignHamburgerToggleButton}"
+                                          Command="{x:Static materialDesign:DrawerHost.CloseDrawerCommand}"
+                                          IsChecked="{ Binding IsLeftDrawerOpen ,RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=materialDesign:DrawerHost}}"
+                                          CommandParameter="{x:Static Dock.Left}"
+                                          DockPanel.Dock="Right"
+                                          HorizontalAlignment="Right"
+                                          Margin="10" />
+                        </DockPanel>
+
+                        <ListBox Grid.Row="1"
+                                 ItemsSource="{Binding Menu}"
+                                 Name="lstBoxMenu"
+                                 SelectedItem="{Binding SelectedMenu,Mode=TwoWay}">
+                            <!--ItemContainerStyle="{StaticResource MenuListBoxItemStyle}">-->
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="SelectionChanged">
+                                    <i:InvokeCommandAction Command="{ Binding SelectionChangedCommand }"
+                                                           CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=ListBox}}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal"
+                                                    Height="35">
+                                            <materialDesign:PackIcon Kind="{ Binding Icon}"
+                                                                     VerticalAlignment="Center"
+                                                                     Margin="10 0 10 0"></materialDesign:PackIcon>
+                                            <TextBlock Text="{Binding Header}"
+                                                       FontSize="15"
+                                                       VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <Separator Grid.Row="2"
+                                   Style="{DynamicResource MaterialDesignSeparator }"
+                                   Margin="0"></Separator>
+                        <DockPanel Grid.Row="3">
+                            <Image Margin="8 0 0 0"
+                                   Source="../logo.ico"
+                                   Width="40"
+                                   Height="40"></Image>
+                            <TextBlock Margin="8 0 0 0"
+                                       Text="{Binding Version}"
+                                       VerticalAlignment="Center"></TextBlock>
+                            <Button DockPanel.Dock="Right"
+                                    HorizontalAlignment="Right"
+                                    Margin="0,0,16,0"
+                                    materialDesign:RippleAssist.Feedback="{Binding RelativeSource={RelativeSource Self}, Path=Foreground, Converter={StaticResource BrushRoundConverter}}"
+                                    Command="{Binding SettingCommand}"
+                                    Content="{materialDesign:PackIcon Kind=Settings, Size=24}"
+                                    Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"
+                                    Style="{StaticResource MaterialDesignToolButton}"
+                                    ToolTip="设置" />
+                        </DockPanel>
+                    </Grid>
+                </materialDesign:DrawerHost.LeftDrawerContent>
+
+                <Grid ClipToBounds="True">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="5" />
+                    </Grid.RowDefinitions>
+                    <materialDesign:Snackbar x:Name="Snackbar"
+                                             MessageQueue="{materialDesign:MessageQueue}"
+                                             Panel.ZIndex="1"
+                                             Grid.Row="1"
+                                             Margin="0 10 0 0"
+                                             VerticalAlignment="Top"></materialDesign:Snackbar>
+                    <materialDesign:ColorZone Name="colorZone"
+                                              Height="60"
+                                              Padding="10"
+                                              Mode="PrimaryDark"
+                                              ClipToBounds="False"
+                                              VerticalAlignment="Center">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0"
+                                        Orientation="Horizontal">
+                                <ToggleButton Style="{StaticResource MaterialDesignHamburgerToggleButton}"
+                                              Visibility="{Binding IsLeftDrawerOpen,RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=materialDesign:DrawerHost}, Converter={ StaticResource ReverseBoolToVisibilityConverter } }"
+                                              IsChecked="{ Binding IsLeftDrawerOpen ,RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=materialDesign:DrawerHost}}"
+                                              Command="{x:Static materialDesign:DrawerHost.OpenDrawerCommand}"
+                                              CommandParameter="{x:Static Dock.Left}">
+
+                                </ToggleButton>
+
+                                <Button Margin="16,0,0,0"
+                                        Command="{Binding HomeCommand}"
+                                        Content="{materialDesign:PackIcon Kind=Home,Size=24}"
+                                        materialDesign:RippleAssist.Feedback="{Binding RelativeSource={RelativeSource Self}, Path=Foreground, Converter={StaticResource BrushRoundConverter}}"
+                                        Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"
+                                        Style="{StaticResource MaterialDesignToolButton}"
+                                        ToolTip="主页" />
+                                <Button Margin="16,0,0,0"
+                                        materialDesign:RippleAssist.Feedback="{Binding RelativeSource={RelativeSource Self}, Path=Foreground, Converter={StaticResource BrushRoundConverter}}"
+                                        Command="{Binding MovePrevCommand}"
+                                        Content="{materialDesign:PackIcon Kind=ArrowLeft,Size=24}"
+                                        Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"
+                                        Style="{StaticResource MaterialDesignToolButton}"
+                                        ToolTip="上一页"
+                                        IsEnabled="{Binding CanGoBack,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+
+                                <Button Margin="16,0,0,0"
+                                        materialDesign:RippleAssist.Feedback="{Binding RelativeSource={RelativeSource Self}, Path=Foreground, Converter={StaticResource BrushRoundConverter}}"
+                                        Command="{Binding MoveNextCommand}"
+                                        Content="{materialDesign:PackIcon Kind=ArrowRight,
+                                          Size=24}"
+                                        Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"
+                                        Style="{StaticResource MaterialDesignToolButton}"
+                                        ToolTip="下一页"
+                                        IsEnabled="{Binding CanGoForward,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+
+
+                                <TextBlock Margin="16,0,0,0"
+                                           Grid.Column="1"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           AutomationProperties.Name=""
+                                           FontSize="18"
+                                           Text="" />
+                            </StackPanel>
+
+
+
+                            <StackPanel Grid.Column="2"
+                                        Orientation="Horizontal">
+                                <Button Margin="16,0,0,0"
+                                        Command="{Binding MinCommand}"
+                                        Name="minBtn"
+                                        Content="{materialDesign:PackIcon Kind=WindowMinimize,Size=21}"
+                                        materialDesign:RippleAssist.Feedback="{Binding RelativeSource={RelativeSource Self}, Path=Foreground, Converter={StaticResource BrushRoundConverter}}"
+                                        Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"
+                                        Style="{StaticResource MaterialDesignToolButton}"
+                                        ToolTip="最小化" />
+                                <Button Margin="16,0,0,0"
+                                        Command="{Binding MaxCommand}"
+                                        Name="maxBtn"
+                                        materialDesign:RippleAssist.Feedback="{Binding RelativeSource={RelativeSource Self}, Path=Foreground, Converter={StaticResource BrushRoundConverter}}"
+                                        Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"
+                                        Style="{StaticResource MaterialDesignToolButton}"
+                                        ToolTip="最大化">
+                                    <materialDesign:PackIcon Kind="{Binding MaxIconKind}"
+                                                             Width="21"
+                                                             Height="21" />
+                                </Button>
+                                <Button Margin="16,0,0,0"
+                                        Command="{Binding CloseCommand}"
+                                        Name="closeBtn"
+                                        Content="{materialDesign:PackIcon Kind=WindowClose,Size=21}"
+                                        materialDesign:RippleAssist.Feedback="{Binding RelativeSource={RelativeSource Self}, Path=Foreground, Converter={StaticResource BrushRoundConverter}}"
+                                        Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"
+                                        Style="{StaticResource MaterialDesignToolButton}"
+                                        ToolTip="关闭" />
+                            </StackPanel>
+                        </Grid>
+                    </materialDesign:ColorZone>
+                    <ContentControl Grid.Row="1"
+                                    prism:RegionManager.RegionName="{x:Static lib:Consts.ContentRegion}"
+                                    Margin="0 0 0 10" />
+
+                </Grid>
+            </materialDesign:DrawerHost>
+        </materialDesign:DialogHost>
+    </Border>
+</Window>

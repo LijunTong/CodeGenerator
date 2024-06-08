@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+	  <SignAssembly>false</SignAssembly>
+	  <AssemblyOriginatorKeyFile></AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Jt.Common.Tool" Version="1.1.5" />
+    <PackageReference Include="RazorEngine.NetCore" Version="3.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CodeGenerator.Core\CodeGenerator.Core.csproj" />
+    <ProjectReference Include="..\CodeGenerator.Data\CodeGenerator.Data.csproj" />
+    <ProjectReference Include="..\CodeGenerator.Lib\CodeGenerator.Lib.csproj" />
+    <ProjectReference Include="..\CodeGenerator.Repository.Interface\CodeGenerator.Repository.Interface.csproj" />
+    <ProjectReference Include="..\CodeGenerator.Repository\CodeGenerator.Repository.csproj" />
+    <ProjectReference Include="..\CodeGenerator.Services.Interface\CodeGenerator.Services.Interface.csproj" />
+  </ItemGroup>
+
+</Project>

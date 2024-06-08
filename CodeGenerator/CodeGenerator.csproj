@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>logo.ico</ApplicationIcon>
+    <Version />
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="logo.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Jt.Common.Tool" Version="1.1.5" />
+    <PackageReference Include="MaterialDesignThemes" Version="5.0.0" />
+	 
+	  <PackageReference Include="NLog" Version="5.3.2" />
+	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+	  <PackageReference Include="Prism.Unity" Version="8.1.97" />
+	  <PackageReference Include="Unity.RegistrationByConvention" Version="5.11.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CodeGenerator.Core\CodeGenerator.Core.csproj" />
+    <ProjectReference Include="..\CodeGenerator.Modules.Code\CodeGenerator.Modules.Code.csproj" />
+    <ProjectReference Include="..\CodeGenerator.Modules.Common\CodeGenerator.Modules.Common.csproj" />
+    <ProjectReference Include="..\CodeGenerator.Repository.Interface\CodeGenerator.Repository.Interface.csproj" />
+    <ProjectReference Include="..\CodeGenerator.Repository\CodeGenerator.Repository.csproj" />
+    <ProjectReference Include="..\CodeGenerator.Services.Interface\CodeGenerator.Services.Interface.csproj" />
+    <ProjectReference Include="..\CodeGenerator.Services\CodeGenerator.Services.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="default.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>
