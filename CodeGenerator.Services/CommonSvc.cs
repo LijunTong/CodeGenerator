@@ -30,7 +30,7 @@ namespace CodeGenerator.Services
                 File.Copy(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "default.db"), dbFile);
             }
 
-            _client.CodeFirst.SetStringDefaultLength(200).InitTables(typeof(CodeDb), typeof(CodeGenScheme), typeof(CodeSchemeDetials), typeof(CodeTemp));
+            _client.CodeFirst.SetStringDefaultLength(200).InitTables(typeof(CodeDb), typeof(CodeGenScheme), typeof(CodeSchemeDetials), typeof(CodeTemp), typeof(CodeHis));
         }
     }
 }
