@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using Unity;
 using Unity.Injection;
@@ -26,50 +27,52 @@ namespace CodeGenerator
     public partial class App
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        private LoadWindow loadWindow;
+        Task initTask;
 
         protected override Window CreateShell()
         {
             // 初始化 NLog
             LogManager.Setup().LoadConfigurationFromFile("NLog.config");
-            var commonSvc = Container.Resolve<ICommonSvc>();
-            commonSvc.CodeFirstInitTables();
+            
             return Container.Resolve<MainWindow>();
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            var container = containerRegistry.GetContainer();
+                var container = containerRegistry.GetContainer();
+                AppSetting appSetting = GetAppSetting();
+                MenuOptions menu = GetMenuOptions();
+                container.RegisterInstance<AppSetting>(appSetting);
+                container.RegisterInstance<MenuOptions>(menu);
 
-            AppSetting appSetting = GetAppSetting();
-            MenuOptions menu = GetMenuOptions();
-            container.RegisterInstance<AppSetting>(appSetting);
-            container.RegisterInstance<MenuOptions>(menu);
-
-            // 注入ISqlSugarClient
-            if (!Enum.TryParse<DbType>(appSetting.SqlSugar.DbType, true, out DbType dbType))
-            {
-                Logger.Error("读取SqlSugar配置异常");
-            }
-            else
-            {
-                container.RegisterInstance<ISqlSugarClient>(new SqlSugarClient(new ConnectionConfig
+                // 注入ISqlSugarClient
+                if (!Enum.TryParse<DbType>(appSetting.SqlSugar.DbType, true, out DbType dbType))
                 {
-                    DbType = dbType,
-                    ConnectionString = appSetting.SqlSugar.ConnectionString,
-                    IsAutoCloseConnection = appSetting.SqlSugar.IsAutoCloseConnection,
-                    MoreSettings = new ConnMoreSettings()
+                    Logger.Error("读取SqlSugar配置异常");
+                }
+                else
+                {
+                    container.RegisterInstance<ISqlSugarClient>(new SqlSugarClient(new ConnectionConfig
                     {
-                        SqliteCodeFirstEnableDropColumn = true, //只支持.net core
-                        SqliteCodeFirstEnableDefaultValue = true,
-                        SqliteCodeFirstEnableDescription = true
-                    }
-                }));
-            }
+                        DbType = dbType,
+                        ConnectionString = appSetting.SqlSugar.ConnectionString,
+                        IsAutoCloseConnection = appSetting.SqlSugar.IsAutoCloseConnection,
+                        MoreSettings = new ConnMoreSettings()
+                        {
+                            SqliteCodeFirstEnableDropColumn = true, //只支持.net core
+                            SqliteCodeFirstEnableDefaultValue = true,
+                            SqliteCodeFirstEnableDescription = true
+                        }
+                    }));
+                }
 
-            // 批量注入主要服务，包括Service和Repository层
-            Register(container);
+                // 批量注入主要服务，包括Service和Repository层
+                Register(container);
 
-            container.RegisterType<IDialogHostService, DialogHostService>();
+                container.RegisterType<IDialogHostService, DialogHostService>();
+
+                
         }
 
         protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
@@ -89,17 +92,34 @@ namespace CodeGenerator
                 this.Shutdown();
                 return;
             }
+
+            loadWindow = new LoadWindow();
+            loadWindow.Show();
+
+
             base.OnStartup(e);
         }
 
         protected override void OnInitialized()
         {
+            var commonSvc = Container.Resolve<ICommonSvc>();
+            commonSvc.CodeFirstInitTables();
+
             base.OnInitialized();
             Logger.Info("App Run!");
+            if (loadWindow != null)
+            {
+                loadWindow.Close();
+            }
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
+            if (loadWindow != null)
+            {
+                loadWindow.Close();
+            }
+
             Logger.Info("App Exit!");
             LogManager.Shutdown();
             base.OnExit(e);

@@ -1,0 +1,30 @@
+﻿<Window x:Class="CodeGenerator.Views.LoadWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CodeGenerator.Views"
+        mc:Ignorable="d"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        WindowStartupLocation="CenterScreen"
+        Topmost="True"
+        Title="LoadWindow" Height="200" Width="300">
+    <Grid>
+        <StackPanel>
+            <Image Source="/logo.ico"
+                   VerticalAlignment="Top"
+                   Width="128"
+                   Height="128" />
+            <TextBlock Text="Code Generator" HorizontalAlignment="Center" FontSize="25" Foreground="White"></TextBlock>
+        </StackPanel>
+        
+        
+        <!--<ProgressBar IsIndeterminate="True"
+                     Style="{StaticResource MaterialDesignCircularProgressBar}"
+                     Width="60"
+                     Height="60"
+                     Value="35" />-->
+    </Grid>
+</Window>
