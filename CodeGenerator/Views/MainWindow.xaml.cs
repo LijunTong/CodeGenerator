@@ -66,6 +66,11 @@ namespace CodeGenerator.Views
                 }
             };
 
+            this.topBtn.Click += (s, e) =>
+            {
+                this.Topmost = !this.Topmost;
+            };
+
             _aggregator = aggregator;
 
             _aggregator.RegisterMessage(msg =>
